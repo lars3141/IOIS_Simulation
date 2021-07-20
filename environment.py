@@ -15,17 +15,14 @@ class Opportunity:
         if vector is None:
             self.vector = tuple(choices([0,1], weights=[model.unpredictability, 1 - model.unpredictability], k=10))
         else:
-            self.vector = tuple(map(int, vector))
+            self.vector = vector
         self.payoff = np.random.normal(model.meanPayoff, model.sdPayoff)
         self.duration = np.random.normal(model.meanDuration, model.sdDuration)
         self.birth = time
 
     def perceive(self):
-        out = np.copy(self.vector)
-        for i in range(0, out.size):
-            if np.random.binomial(1, self.model.ambiguity) == 1:
-                out[i] = abs(out[i] - 1)
-        return out
+        return tuple([abs(i - 1) if np.random.binomial(1, self.model.ambiguity) == 1 else i for i in self.vector])
+        
 
 class OpportunityCollection:
 

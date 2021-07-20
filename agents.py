@@ -133,10 +133,7 @@ class Application(Agent):
         array = perceived.astype(str)
         while np.count_nonzero(array == '?') < self.model.improvisation:
             array[np.random.randint(0, array.size)] = '?'
-        return array
+        return tuple(array)
     
     def improvise(self):
-        array = np.copy(self.av)
-        while np.count_nonzero(array == '?') > 0:
-            array[np.where(array == '?')[0][0]] = np.random.randint(0, 2)
-        return array
+        return tuple([np.random.randint(0, 2) if p == '?' else int(p) for p in np.copy(self.av)])

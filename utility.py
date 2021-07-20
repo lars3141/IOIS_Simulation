@@ -13,9 +13,9 @@ def readCsv(path):
 def match(v1, v2):
     sum = 0.0
     for a,b in zip(v1, v2):
-        if a=='?':
+        if a == '?':
             sum += 0.5
-        elif str(a)==str(b):
+        elif int(a) == b:
             sum += 1.0
     return sum
 
