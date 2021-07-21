@@ -6,7 +6,7 @@ from random import choices
 
 class Actor(Agent):
     """
-    An agent
+    An actor, that can take different actions.
     """
 
     def __init__(self, unique_id, model, tier):
@@ -17,9 +17,13 @@ class Actor(Agent):
 
     def use(self, perceived, schedule):
         """
-        The agent uses an opportunity 
+        The agent uses an opportunity
+
+        Args:
+            perceived: Perceived vector of current opportunity
+            schedule: schedule the actor acts in
         """
-        #find matching apps
+        #find matching value of available apps
         results = {edge[1]: (match(schedule.appList[edge[1]].av, perceived), edge) for edge in schedule.network.edges(self.unique_id, data=True) if edge[1] not in schedule.actorList and
             edge[2]['strength'] >= self.model.useThreshold}
         if len(results) > 0:
@@ -33,34 +37,33 @@ class Actor(Agent):
     def communicate(self, schedule):
         """
         The agent communicates
+
+        Args:
+            schedule: schedule the actor acts in
         """
         edgesToAdd = []
         connections = [edge for edge in schedule.network.edges(self.unique_id, data=True) if edge[1] in schedule.actorList and schedule.actorList[edge[1]].tier != self.tier and edge[2]['strength'] >= self.model.commThreshold]
-        if len(connections) == 0:
-            self.connect(schedule)
-        else:
-            for s,actorKey,d in connections:
+        for s,actorKey,d in connections:
 
-                d['strength'] = min(d['strength'] + self.model.commGain, 1)
-                
-                for app in list(set(schedule.network.neighbors(actorKey)) | set(schedule.network.neighbors(s))):
-                    if app not in schedule.actorList:
-                        try:
-                            ownKnow = schedule.network[self.unique_id][app]['strength']
-                        except KeyError:
-                            edgesToAdd.append((self.unique_id, app, schedule.network[actorKey][app]['strength'] * self.model.commDensity))
-                            continue
-                        try:
-                            otherKnow = schedule.network[actorKey][app]['strength']
-                        except KeyError:
-                            edgesToAdd.append((actorKey, app, ownKnow * self.model.commDensity))
-                            continue
-                        diff = ownKnow - otherKnow
-                        if diff > 0:
-                            schedule.network[actorKey][app]['strength'] += diff * self.model.commDensity
-                        elif diff < 0:
-                            schedule.network[self.unique_id][app]['strength'] += -diff * self.model.commDensity
-                # as array: (app, node1, node2)
+            d['strength'] = min(d['strength'] + self.model.commGain, 1)
+            
+            for app in list(set(schedule.network.neighbors(actorKey)) | set(schedule.network.neighbors(s))):
+                if app not in schedule.actorList:
+                    try:
+                        ownKnow = schedule.network[self.unique_id][app]['strength']
+                    except KeyError:
+                        edgesToAdd.append((self.unique_id, app, schedule.network[actorKey][app]['strength'] * self.model.commDensity))
+                        continue
+                    try:
+                        otherKnow = schedule.network[actorKey][app]['strength']
+                    except KeyError:
+                        edgesToAdd.append((actorKey, app, ownKnow * self.model.commDensity))
+                        continue
+                    diff = ownKnow - otherKnow
+                    if diff > 0:
+                        schedule.network[actorKey][app]['strength'] += diff * self.model.commDensity
+                    elif diff < 0:
+                        schedule.network[self.unique_id][app]['strength'] += -diff * self.model.commDensity
                 
         schedule.network.add_weighted_edges_from(edgesToAdd, 'strength')
 
@@ -68,6 +71,9 @@ class Actor(Agent):
     def connect(self, schedule):
         """
         The agent connects
+
+        Args:
+            schedule: schedule the actor acts in
         """
         edgesToAdd = []
         for actor in choices([key for key in schedule.actorList if schedule.actorList[key].tier != self.tier], k=self.model.conNumber):
@@ -81,6 +87,10 @@ class Actor(Agent):
     def build(self, perceived, schedule):
         """
         The agent builds a new application
+
+        Args:
+            perceived: Perceived vector of current opportunity
+            schedule: schedule the actor acts in
         """
         newApp = Application(schedule.get_highest_id()+1, self.model, perceived, schedule.time)
         schedule.add(newApp)
@@ -88,6 +98,14 @@ class Actor(Agent):
         return newApp
 
     def step(self, perceived ,schedule):
+        """
+        One step of the actor, including use of applcations, 
+        communication to peer, connectio to new peers and build of a new application.
+
+        Args:
+            perceived: Perceived vector of current opportunity
+            schedule: schedule the actor acts in
+        """
         aBest = None
         i = self.model.patience
         lastAction = ''
@@ -130,10 +148,44 @@ class Application(Agent):
         self.lastUsed = time
         
     def build_vector(self, perceived):
+        """
+        Helping methode to create a new application vector
+
+        Args:
+            perceived: Perceived vector of current opportunity
+
+        Returns:
+            application vector
+        """
         array = perceived.astype(str)
         while np.count_nonzero(array == '?') < self.model.improvisation:
             array[np.random.randint(0, array.size)] = '?'
         return tuple(array)
     
     def improvise(self):
+        """
+        Improvisation of application vector
+
+        Args:
+            perceived: Perceived vector of current opportunity
+        
+        Returns:
+            improvised vector
+        """
         return tuple([np.random.randint(0, 2) if p == '?' else int(p) for p in np.copy(self.av)])
+
+    def cost(self, schedule):
+        """
+        Total cost of application usage
+
+        Args:
+            schedule: schedule the application exists in
+        
+        Returns:
+            total cost of application
+        """
+        #cost of connection
+        cost = np.sum([1 for actor in schedule.network.neighbors(self.unique_id) if actor in schedule.actorList])
+        #cost of age
+        cost =+ schedule.time - self.birth
+        return cost

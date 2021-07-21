@@ -88,7 +88,7 @@ class RandomActivationByTier(RandomActivation):
                 if app is not None:
                     realized = app.improvise()
                     
-                    cost = utility.applicationCost(app, self)
+                    cost = app.cost(self)
                     if opportunity.payoff > cost:
                         self.actorList[key].costs += cost
                         if utility.match(opportunity.vector, realized) >= self.model.complexity:

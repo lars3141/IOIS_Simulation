@@ -98,15 +98,6 @@ class IoisModel(Model):
         self.verbose = verbose
  
         self.schedule = schedule.RandomActivationByTier(self)
-        self.datacollector = DataCollector(
-            {
-                "Apps": lambda m: m.schedule.getAppCount(),
-                "Payoffs": lambda m: m.schedule.getAllPayoffs(),
-                "Costs": lambda m: m.schedule.getAllCosts(),
-                "Actor Connections": lambda m: m.schedule.getActorConnections(),
-                "Application Connections": lambda m: m.schedule.getAppConnections()
-            }
-        )
 
         # Create actors:
         for i in range(self.initialActors):
@@ -116,13 +107,8 @@ class IoisModel(Model):
         self.avgAppCon = 0.0
         self.avgActorConTime = 0.0
 
-        # self.datacollector.collect(self)
-
     def step(self):
         self.schedule.step()
-
-        # collect data
-        # self.datacollector.collect(self)
 
         if self.verbose:
             print(
@@ -139,11 +125,14 @@ class IoisModel(Model):
     def run_model(self, step_count=300, exp_begin=100):
 
         for i in range(step_count):
+            #zero all cash-flow counters
             if i == exp_begin:
                 for actor in self.schedule.actorList.values():
                     actor.payoffs = 0.0
                     actor.costs = 0.0
+            #run step
             self.step()
+            #collect data
             if i >= exp_begin:
                 self.avgApps = (self.schedule.getAppCount() + self.avgApps * (i-exp_begin))/(i-exp_begin+1)
                 self.avgAppCon = (self.schedule.getAppConnections() + self.avgAppCon * (i-exp_begin))/(i-exp_begin+1)
