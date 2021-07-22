@@ -14,7 +14,7 @@ def runExperiment (value):
     """
     #set-up the model
     experimentModel = model.IoisModel(
-        useThreshold = value
+        cCommunicate = value
     )
 
     #run the model

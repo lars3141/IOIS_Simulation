@@ -24,12 +24,12 @@ class IoisModel(Model):
         ,cBuild = 0.6 # Experiment
         ,useThreshold = 0.6
         ,useGain = 0.2
-        ,commDensity = 0.5
-        ,commThreshold = 0.4
+        ,commDensity = 0.4
+        ,commThreshold = 0.5
         ,commGain = 0.2
         ,conNumber = 5
         ,conGain = 0.4
-        ,buildCost = 60
+        ,buildCost = 90
         ,decreaseStrength = 0.1
         ,decreaseKnowledge = 0.1
         ,initialActors = 120

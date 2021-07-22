@@ -6,10 +6,10 @@ import csv
 
 if __name__ == '__main__':
     results = set()
-    for i in range(1):
+    for i in range(10):
         #set-up pools (number of Threads)
         p = Pool(8)
-        results = results.union(p.map(runExperiment, [round(x * 0.05, 2) for x in range(21)]))
+        results = results.union(p.map(runExperiment, [round(x * 0.01, 2) for x in range(101)]))
         p.close()
         p.join()
         print(f'Iteration {i + 1} finished.')
