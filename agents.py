@@ -47,23 +47,23 @@ class Actor(Agent):
 
             d['strength'] = min(d['strength'] + self.model.commGain, 1)
             
-            for app in list(set(schedule.network.neighbors(actorKey)) | set(schedule.network.neighbors(s))):
-                if app not in schedule.actorList:
+            for app in set(schedule.network.neighbors(actorKey)) | set(schedule.network.neighbors(s)):
+                if app in schedule.appList:
                     try:
-                        ownKnow = schedule.network[self.unique_id][app]['strength']
+                        ownKnow = schedule.network[self.unique_id][app]
                     except KeyError:
                         edgesToAdd.append((self.unique_id, app, schedule.network[actorKey][app]['strength'] * self.model.commDensity))
                         continue
                     try:
-                        otherKnow = schedule.network[actorKey][app]['strength']
+                        otherKnow = schedule.network[actorKey][app]
                     except KeyError:
-                        edgesToAdd.append((actorKey, app, ownKnow * self.model.commDensity))
+                        edgesToAdd.append((actorKey, app, ownKnow['strength'] * self.model.commDensity))
                         continue
-                    diff = ownKnow - otherKnow
+                    diff = ownKnow['strength'] - otherKnow['strength']
                     if diff > 0:
-                        schedule.network[actorKey][app]['strength'] += diff * self.model.commDensity
+                        otherKnow['strength'] += diff * self.model.commDensity
                     elif diff < 0:
-                        schedule.network[self.unique_id][app]['strength'] += -diff * self.model.commDensity
+                        ownKnow['strength'] += -diff * self.model.commDensity
                 
         schedule.network.add_weighted_edges_from(edgesToAdd, 'strength')
 
@@ -108,20 +108,23 @@ class Actor(Agent):
         """
         aBest = None
         i = self.model.patience
-        lastAction = ''
+        use = True
+        communicate = True
         while i > 0 and aBest is None:
-            if np.random.random(1)[0] <= self.model.cUse and lastAction != 'connect':
+            if np.random.random(1)[0] <= self.model.cUse and use:
+                use = False
                 aBest = self.use(perceived, schedule)
                 if aBest is not None:
                     break
                 i -= 1
-            if np.random.random(1)[0] <= self.model.cCommunicate != 'communicate':
-                lastAction = 'communicate'
+            if np.random.random(1)[0] <= self.model.cCommunicate and communicate:
+                use = True
+                communicate = False
                 self.communicate(schedule)
                 i -= 1
                 continue
             if np.random.random(1)[0] <= self.model.cConnect:
-                lastAction = 'connect'
+                communicate = True
                 self.connect(schedule)
                 i -= 1
         if np.random.random(1)[0] <= self.model.cBuild and aBest is None:

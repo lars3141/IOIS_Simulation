@@ -14,9 +14,9 @@ def runExperiment (value):
     """
     #set-up the model
     experimentModel = model.IoisModel(
-        cCommunicate = value
+        decreaseKnowledge = value
     )
 
     #run the model
     out1, out2, out3, out4, out5 = experimentModel.run_model()
-    return value, out1, out2, out3, out4, out5
+    return (value, out1, out2, out3, out4, out5)

@@ -19,12 +19,12 @@ class IoisModel(Model):
         ,improvisation = 3
         ,patience = 6
         ,cUse = 0.8 # Experiment
-        ,cCommunicate = 0.6 # Experiment
+        ,cCommunicate = 0.5 # Experiment
         ,cConnect = 0.6 # Experiment
-        ,cBuild = 0.6 # Experiment
-        ,useThreshold = 0.6
+        ,cBuild = 0.6 
+        ,useThreshold = 0.55
         ,useGain = 0.2
-        ,commDensity = 0.4
+        ,commDensity = 0.5 # Experiment
         ,commThreshold = 0.5
         ,commGain = 0.2
         ,conNumber = 5

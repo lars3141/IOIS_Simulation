@@ -83,7 +83,10 @@ class RandomActivationByTier(RandomActivation):
             keys = [key for key in self.actorList if self.actorList[key].tier == tier]
             self.model.random.shuffle(keys)
             for key in keys:
-                opportunity = choice(self.allOpportunities[tier].opportunities)
+                try:
+                    opportunity = choice(self.allOpportunities[tier].opportunities)
+                except IndexError:
+                    continue
                 app = self.actorList[key].step(opportunity.perceive(), self)
                 if app is not None:
                     realized = app.improvise()
