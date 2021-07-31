@@ -24,7 +24,7 @@ class Actor(Agent):
             schedule: schedule the actor acts in
         """
         #find matching value of available apps
-        results = {edge[1]: (match(schedule.appList[edge[1]].av, perceived), edge) for edge in schedule.network.edges(self.unique_id, data=True) if edge[1] not in schedule.actorList and
+        results = {edge[1]: (match(schedule.appList[edge[1]].av, perceived), edge) for edge in schedule.network.edges(self.unique_id, data=True) if edge[1] in schedule.appList and
             edge[2]['strength'] >= self.model.useThreshold}
         if len(results) > 0:
             best = max(results.values(), key=itemgetter(0))
@@ -109,7 +109,6 @@ class Actor(Agent):
         aBest = None
         i = self.model.patience
         use = True
-        communicate = True
         while i > 0 and aBest is None:
             if np.random.random(1)[0] <= self.model.cUse and use:
                 use = False
@@ -117,16 +116,16 @@ class Actor(Agent):
                 if aBest is not None:
                     break
                 i -= 1
-            if np.random.random(1)[0] <= self.model.cCommunicate and communicate:
+            if np.random.random(1)[0] <= self.model.cCommunicate:
                 use = True
-                communicate = False
                 self.communicate(schedule)
                 i -= 1
                 continue
             if np.random.random(1)[0] <= self.model.cConnect:
-                communicate = True
                 self.connect(schedule)
                 i -= 1
+                continue
+            i -= 1
         if np.random.random(1)[0] <= self.model.cBuild and aBest is None:
             aBest = self.build(perceived, schedule)
             self.costs += self.model.buildCost

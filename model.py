@@ -10,21 +10,21 @@ class IoisModel(Model):
     def __init__(self
         ,velocity = 60 #Experiment 1
         ,unpredictability = 0.7569961461910347 # Experiment 1
-        ,ambiguity = 0.1 # Experiment 2
         ,complexity = 6 # Experiment 2
+        ,ambiguity = 0.1 # Experiment 2
         ,meanPayoff = 30
         ,sdPayoff = 5
         ,meanDuration = 20
         ,sdDuration = 5
         ,improvisation = 3
-        ,patience = 6
-        ,cUse = 0.8 # Experiment
-        ,cCommunicate = 0.5 # Experiment
-        ,cConnect = 0.6 # Experiment
+        ,patience = 8
+        ,cUse = 0.8 # Experiment 6
+        ,cCommunicate = 0.5 # Experiment 4
+        ,cConnect = 0.6 # Experiment 3
         ,cBuild = 0.6 
         ,useThreshold = 0.55
         ,useGain = 0.2
-        ,commDensity = 0.5 # Experiment
+        ,commDensity = 0.5 # Experiment 5
         ,commThreshold = 0.5
         ,commGain = 0.2
         ,conNumber = 5
