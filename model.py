@@ -1,5 +1,4 @@
 from mesa import Model
-from mesa.datacollection import DataCollector
 import numpy as np
 
 import agents

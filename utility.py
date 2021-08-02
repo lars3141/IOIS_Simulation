@@ -1,5 +1,4 @@
 import csv
-import agents
 import numpy as np
 
 def readCsv(path):
