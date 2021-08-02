@@ -110,21 +110,22 @@ class Actor(Agent):
         i = self.model.patience
         use = True
         while i > 0 and aBest is None:
-            if np.random.random(1)[0] <= self.model.cUse and use:
-                use = False
-                aBest = self.use(perceived, schedule)
-                if aBest is not None:
-                    break
-                i -= 1
-            if np.random.random(1)[0] <= self.model.cCommunicate:
-                use = True
-                self.communicate(schedule)
-                i -= 1
-                continue
-            if np.random.random(1)[0] <= self.model.cConnect:
-                self.connect(schedule)
-                i -= 1
-                continue
+            if np.random.random(1)[0] <= self.model.cUse:
+                if use:
+                    use = False
+                    aBest = self.use(perceived, schedule)
+                    if aBest is not None:
+                        break
+                    i -= 1
+                if np.random.random(1)[0] <= self.model.cCommunicate:
+                    use = True
+                    self.communicate(schedule)
+                    i -= 1
+                    continue
+                if np.random.random(1)[0] <= self.model.cConnect:
+                    self.connect(schedule)
+                    i -= 1
+                    continue
             i -= 1
         if np.random.random(1)[0] <= self.model.cBuild and aBest is None:
             aBest = self.build(perceived, schedule)
