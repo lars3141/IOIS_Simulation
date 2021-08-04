@@ -14,7 +14,8 @@ def runExperiment (value):
     """
     #set-up the model
     experimentModel = model.IoisModel(
-        decreaseKnowledge = value
+        #complexity = int(round(value * 10, 0))
+        #,ambiguity = value
     )
 
     #run the model

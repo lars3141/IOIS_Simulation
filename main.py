@@ -13,7 +13,7 @@ if __name__ == '__main__':
         intermediate = set()
         #set-up pools (number of Threads)
         p = Pool(8)
-        intermediate = intermediate.union(tqdm(p.imap_unordered(runExperiment, [round(x * 0.01, 2) for x in range(101)]), total=101, desc = f'Itera. {i + 1:02d}'))
+        intermediate = intermediate.union(tqdm(p.imap_unordered(runExperiment, [x for x in range(200)]), total=200, desc = f'{i + 1:02d}'))
         p.close()
         p.join()
         with open('out.csv', 'a', newline='') as csvfile:
